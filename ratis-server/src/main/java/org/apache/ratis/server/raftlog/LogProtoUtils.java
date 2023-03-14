@@ -209,4 +209,21 @@ public final class LogProtoUtils {
     final List<RaftPeer> oldListener = ProtoUtils.toRaftPeers(proto.getOldListenersList());
     return ServerImplUtils.newRaftConfiguration(conf, listener, entry.getIndex(), oldConf, oldListener);
   }
+
+  public static RaftConfiguration toRaftConfigurationFilter(LogEntryProto entry, String filterPeerId) {
+    Preconditions.assertTrue(entry.hasConfigurationEntry());
+    final RaftConfigurationProto proto = entry.getConfigurationEntry();
+    final List<RaftPeer> conf = ProtoUtils.toRaftPeers(proto.getPeersList());
+
+    List<RaftPeer> filteredConf = conf.stream().filter(
+      p -> !(p.getId().equals(filterPeerId))
+      )
+    .collect(Collectors.toList());
+
+    final List<RaftPeer> listener = ProtoUtils.toRaftPeers(proto.getListenersList());
+    final List<RaftPeer> oldConf = ProtoUtils.toRaftPeers(proto.getOldPeersList());
+    final List<RaftPeer> oldListener = ProtoUtils.toRaftPeers(proto.getOldListenersList());
+    return ServerImplUtils.newRaftConfiguration(filteredConf, listener, entry.getIndex(), oldConf, oldListener);
+  }
+
 }
