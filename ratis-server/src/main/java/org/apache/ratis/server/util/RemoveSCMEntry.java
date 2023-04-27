@@ -1,4 +1,3 @@
-package org.apache.ratis.server.util;
 
 import org.apache.ratis.server.impl.ServerImplUtils;
 import org.apache.ratis.server.raftlog.LogProtoUtils;
