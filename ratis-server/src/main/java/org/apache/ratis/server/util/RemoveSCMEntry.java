@@ -1,7 +1,12 @@
+package org.apache.ratis.server.util;
 
+import org.apache.ratis.server.impl.ServerImplUtils;
 import org.apache.ratis.server.raftlog.LogProtoUtils;
 import org.apache.ratis.server.RaftConfiguration;
-import org.apache.ratis.proto.RaftProtos.LogEntryProto;
+import org.apache.ratis.proto.RaftProtos.*;
+import org.apache.ratis.protocol.RaftPeer;
+import org.apache.ratis.util.Preconditions;
+import org.apache.ratis.util.ProtoUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,6 +15,9 @@ import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 public class RemoveSCMEntry {
 
@@ -24,6 +32,7 @@ public class RemoveSCMEntry {
           confProto = LogEntryProto.newBuilder().mergeFrom(fio).build();          
         } catch (Exception e) {
           System.out.println("Failed to build conf proto: " + e.getMessage());
+          return;
         }
         backupConfFile(dbPath, confProto);
 
@@ -45,39 +54,39 @@ public class RemoveSCMEntry {
         try (FileOutputStream fio = new FileOutputStream(confFile)) {
           conf.writeTo(fio);
         } catch (Exception e) {
-            System.out.println("Failed to write configuration to file:" + confFile + ". Err: " + e.getMessage());
+          System.out.println("Failed to write configuration to file:" + confFile + ". Err: " + e.getMessage());
         }
     }
     
-    public static RaftConfiguration removeStaleSCMHostInRaftConfiguration(String peerHostname, String dbPath) {
-      File confFile = new File(dbPath);
-      try (FileInputStream fio = new FileInputStream(confFile)) {
+    public static RaftConfiguration removeStaleSCMHostInRaftConfiguration(String filterHostname, String dbPath) {
+        File confFile = new File(dbPath);
+        try (FileInputStream fio = new FileInputStream(confFile)) {
           LogEntryProto entry = LogEntryProto.newBuilder().mergeFrom(fio).build();
 
-      Preconditions.assertTrue(entry.hasConfigurationEntry())
-      final RaftConfigurationProto proto = entry.getConfigurationEntry();
-      final List<RaftPeer> conf = ProtoUtils.toRaftPeers(proto.getPeersList());
+        Preconditions.assertTrue(entry.hasConfigurationEntry());
+        final RaftConfigurationProto proto = entry.getConfigurationEntry();
+        final List<RaftPeer> conf = ProtoUtils.toRaftPeers(proto.getPeersList());
 
-      List<RaftPeer> filteredConf = conf.stream()
+        List<RaftPeer> filteredConf = conf.stream()
           .filter(p -> !(p.getAddress().contains(filterHostname)))
           .collect(Collectors.toList());
 
-      final List<RaftPeer> oldConf = ProtoUtils.toRaftPeers(proto.getOldPeersList());
-      return ServerImplUtils.newRaftConfiguration(filteredConf, entry.getIndex(), oldConf);
-      } catch (Exception e) {
+        final List<RaftPeer> oldConf = ProtoUtils.toRaftPeers(proto.getOldPeersList());
+        return ServerImplUtils.newRaftConfiguration(filteredConf, entry.getIndex(), oldConf);
+        } catch (Exception e) {
           System.out.println("Failed to read configuration from file:" + confFile + ". Err: " + e.getMessage());
           return null;
-      }
+        }
     }
 
     public static void printScreenOldConfFile(String filePath) {
-      File confFile = new File(filePath);
-      try (FileInputStream fio = new FileInputStream(confFile)) {
-        LogEntryProto confProto = LogEntryProto.newBuilder().mergeFrom(fio).build();
-        System.out.println("old proto: " + confProto);
-      } catch (Exception e) {
-        System.out.println("Failed to printScreenOldConfFile: " + e.getMessage());
-      } 
+        File confFile = new File(filePath);
+        try (FileInputStream fio = new FileInputStream(confFile)) {
+          LogEntryProto confProto = LogEntryProto.newBuilder().mergeFrom(fio).build();
+          System.out.println("old proto: " + confProto);
+        } catch (Exception e) {
+          System.out.println("Failed to printScreenOldConfFile: " + e.getMessage());
+        }
     }
 
     public static void backupConfFile(String filePath, LogEntryProto logProto) {
