@@ -523,14 +523,13 @@ message PeerInfoReplyProto {
   RaftPeerProto peer = 2;
   RoleInfoProto role = 3;
   bool isRaftStorageHealthy = 4;
-  repeated CommitInfoProto commitInfos = 5;
-  RaftConfigurationProto conf = 6;
-  RaftGroupProto group = 7;
-  uint64 currentTerm = 8;
-  uint64 lastCommitIndex = 9;
-  uint64 lastAppliedIndex = 10;
+  RaftConfigurationProto conf = 5;
+  RaftGroupProto group = 6;
+  uint64 currentTerm = 7;
+  uint64 lastCommitIndex = 8;
+  uint64 lastAppliedIndex = 9;
+  repeated uint64 followerNextIndex = 10;
   uint64 lastSnapshotIndex = 11;
-  repeated uint64 followerNextIndex = 12;
 }
 
 message ServerRpcProto {

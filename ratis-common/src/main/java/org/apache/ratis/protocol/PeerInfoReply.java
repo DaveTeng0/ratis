@@ -36,25 +36,23 @@ public class PeerInfoReply extends RaftClientReply {
   public PeerInfoReply(RaftClientRequest request,
                        RaftGroup group,
                        RaftProtos.RoleInfoProto roleInfoProto,
-                       Collection<RaftProtos.CommitInfoProto> commitInfos,
                        long currentTerm,
                        long lastCommitIndex,
                        long lastAppliedIndex,
-                       long lastSnapshotIndex,
-                       List<Long> followerNextIndex
+                       List<Long> followerNextIndex,
+                       long lastSnapshotIndex
   ) {
     this(request.getClientId(),
         request.getServerId(),
         request.getRaftGroupId(),
         request.getCallId(),
-        commitInfos,
         group,
         roleInfoProto,
         currentTerm,
         lastCommitIndex,
         lastAppliedIndex,
-        lastSnapshotIndex,
-        followerNextIndex);
+        followerNextIndex,
+        lastSnapshotIndex);
 
   }
 
@@ -63,22 +61,21 @@ public class PeerInfoReply extends RaftClientReply {
                        RaftPeerId serverId,
                        RaftGroupId groupId,
                        long callId,
-                       Collection<RaftProtos.CommitInfoProto> commitInfos,
                        RaftGroup group,
                        RaftProtos.RoleInfoProto roleInfoProto,
                        long currentTerm,
                        long lastCommitIndex,
                        long lastAppliedIndex,
-                       long lastSnapshotIndex,
-                       List<Long> followerNextIndex) {
-    super(clientId, serverId, groupId, callId, true, null, null, 0L, commitInfos);
+                       List<Long> followerNextIndex,
+                       long lastSnapshotIndex) {
+    super(clientId, serverId, groupId, callId, true, null, null, 0L, null);
     this.group = group;
     this.roleInfoProto = roleInfoProto;
     this.currentTerm = currentTerm;
     this.lastCommitIndex = lastCommitIndex;
     this.lastAppliedIndex = lastAppliedIndex;
-    this.lastSnapshotIndex = lastSnapshotIndex;
     this.followerNextIndex = followerNextIndex;
+    this.lastSnapshotIndex = lastSnapshotIndex;
   }
 
   public RaftProtos.RoleInfoProto getRoleInfoProto() {

@@ -537,14 +537,13 @@ public interface ClientProtoUtils {
         RaftPeerId.valueOf(rpc.getReplyId()),
         ProtoUtils.toRaftGroupId(rpc.getRaftGroupId()),
         rpc.getCallId(),
-        replyProto.getCommitInfosList(),
         ProtoUtils.toRaftGroup(replyProto.getGroup()),
         replyProto.getRole(),
         replyProto.getCurrentTerm(),
         replyProto.getLastCommitIndex(),
         replyProto.getLastAppliedIndex(),
-        replyProto.getLastSnapshotIndex(),
-        replyProto.getFollowerNextIndexList());
+        replyProto.getFollowerNextIndexList(),
+        replyProto.getLastSnapshotIndex());
   }
 
   static Message toMessage(final ClientMessageEntryProto p) {
