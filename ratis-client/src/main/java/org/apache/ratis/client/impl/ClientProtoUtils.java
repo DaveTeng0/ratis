@@ -45,7 +45,27 @@ import org.apache.ratis.proto.RaftProtos.SnapshotCreateRequestProto;
 import org.apache.ratis.proto.RaftProtos.SnapshotManagementRequestProto;
 import org.apache.ratis.proto.RaftProtos.StateMachineExceptionProto;
 import org.apache.ratis.proto.RaftProtos.TransferLeadershipRequestProto;
-import org.apache.ratis.protocol.*;
+import org.apache.ratis.protocol.ClientId;
+import org.apache.ratis.protocol.DataStreamReply;
+import org.apache.ratis.protocol.GroupInfoReply;
+import org.apache.ratis.protocol.GroupInfoRequest;
+import org.apache.ratis.protocol.GroupListReply;
+import org.apache.ratis.protocol.GroupListRequest;
+import org.apache.ratis.protocol.GroupManagementRequest;
+import org.apache.ratis.protocol.LeaderElectionManagementRequest;
+import org.apache.ratis.protocol.Message;
+import org.apache.ratis.protocol.PeerInfoReply;
+import org.apache.ratis.protocol.PeerInfoRequest;
+import org.apache.ratis.protocol.RaftClientReply;
+import org.apache.ratis.protocol.RaftClientRequest;
+import org.apache.ratis.protocol.RaftGroupId;
+import org.apache.ratis.protocol.RaftGroupMemberId;
+import org.apache.ratis.protocol.RaftPeer;
+import org.apache.ratis.protocol.RaftPeerId;
+import org.apache.ratis.protocol.RoutingTable;
+import org.apache.ratis.protocol.SetConfigurationRequest;
+import org.apache.ratis.protocol.SnapshotManagementRequest;
+import org.apache.ratis.protocol.TransferLeadershipRequest;
 import org.apache.ratis.protocol.exceptions.AlreadyClosedException;
 import org.apache.ratis.protocol.exceptions.DataStreamException;
 import org.apache.ratis.protocol.exceptions.LeaderNotReadyException;
@@ -371,7 +391,6 @@ public interface ClientProtoUtils {
     return b.build();
   }
 
-
   static RaftClientReply getRaftClientReply(DataStreamReply reply) {
     if (!(reply instanceof DataStreamReplyByteBuffer)) {
       throw new IllegalStateException("Unexpected " + reply.getClass() + ": reply is " + reply);
@@ -528,7 +547,6 @@ public interface ClientProtoUtils {
         replyProto.getFollowerNextIndexList());
   }
 
-
   static Message toMessage(final ClientMessageEntryProto p) {
     return Message.valueOf(p.getContent());
   }
@@ -659,7 +677,6 @@ public interface ClientProtoUtils {
         m.getCallId());
   }
 
-
   static GroupManagementRequestProto toGroupManagementRequestProto(GroupManagementRequest request) {
     final GroupManagementRequestProto.Builder b = GroupManagementRequestProto.newBuilder()
         .setRpcRequest(toRaftRpcRequestProtoBuilder(request));
@@ -756,7 +773,6 @@ public interface ClientProtoUtils {
         .setRpcRequest(toRaftRpcRequestProtoBuilder(request))
         .build();
   }
-
 
   static String toString(RaftClientRequestProto proto) {
     final RaftRpcRequestProto rpc = proto.getRpcRequest();

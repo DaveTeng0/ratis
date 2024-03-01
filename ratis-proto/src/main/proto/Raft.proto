@@ -29,9 +29,6 @@ message RaftPeerProto {
   string clientAddress = 5; // address of the client RPC server
   string adminAddress = 6; // address of the admin RPC server
   optional RaftPeerRole startupRole = 7; // peer start up role
-  uint32 lastCommitIndex = 8;
-  uint32 lastAppliedIndex = 9;
-  uint32 lastSnapshotIndex = 10;
 }
 
 message RaftPeerIdProto {
