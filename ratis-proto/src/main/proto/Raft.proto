@@ -29,6 +29,9 @@ message RaftPeerProto {
   string clientAddress = 5; // address of the client RPC server
   string adminAddress = 6; // address of the admin RPC server
   optional RaftPeerRole startupRole = 7; // peer start up role
+  uint32 lastCommitIndex = 8;
+  uint32 lastAppliedIndex = 9;
+  uint32 lastSnapshotIndex = 10;
 }
 
 message RaftPeerIdProto {
@@ -511,6 +514,26 @@ message GroupListRequestProto {
 message GroupInfoRequestProto {
   RaftRpcRequestProto rpcRequest = 1;
   RaftGroupIdProto groupId = 2;
+}
+
+message PeerInfoRequestProto {
+  RaftRpcRequestProto rpcRequest = 1;
+  RaftPeerIdProto peerId = 2;
+}
+
+message PeerInfoReplyProto {
+  RaftRpcReplyProto rpcReply = 1;
+  RaftPeerProto peer = 2;
+  RoleInfoProto role = 3;
+  bool isRaftStorageHealthy = 4;
+  repeated CommitInfoProto commitInfos = 5;
+  RaftConfigurationProto conf = 6;
+  RaftGroupProto group = 7;
+  uint64 currentTerm = 8;
+  uint64 lastCommitIndex = 9;
+  uint64 lastAppliedIndex = 10;
+  uint64 lastSnapshotIndex = 11;
+  repeated uint64 followerNextIndex = 12;
 }
 
 message ServerRpcProto {

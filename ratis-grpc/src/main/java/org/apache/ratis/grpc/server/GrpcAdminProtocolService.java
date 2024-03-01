@@ -64,6 +64,11 @@ public class GrpcAdminProtocolService extends AdminProtocolServiceImplBase {
   }
 
   @Override
+  public void peerInfo(PeerInfoRequestProto proto, StreamObserver<PeerInfoReplyProto> responseObserver) {
+    //TODO
+  }
+
+  @Override
   public void setConfiguration(SetConfigurationRequestProto proto,
       StreamObserver<RaftClientReplyProto> responseObserver) {
     final SetConfigurationRequest request = ClientProtoUtils.toSetConfigurationRequest(proto);

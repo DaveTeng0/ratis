@@ -30,6 +30,7 @@ import org.apache.ratis.thirdparty.io.grpc.stub.StreamObserver;
 import org.apache.ratis.proto.RaftProtos.GroupInfoRequestProto;
 import org.apache.ratis.proto.RaftProtos.GroupListRequestProto;
 import org.apache.ratis.proto.RaftProtos.GroupManagementRequestProto;
+import org.apache.ratis.proto.RaftProtos.PeerInfoRequestProto;
 import org.apache.ratis.proto.RaftProtos.RaftClientReplyProto;
 import org.apache.ratis.proto.RaftProtos.RaftClientRequestProto;
 import org.apache.ratis.proto.RaftProtos.SetConfigurationRequestProto;
@@ -108,6 +109,11 @@ public class GrpcClientRpc extends RaftClientRpcWithProxy<GrpcClientProtocolClie
       final GroupInfoRequestProto proto = ClientProtoUtils.toGroupInfoRequestProto(
           (GroupInfoRequest) request);
       return ClientProtoUtils.toGroupInfoReply(proxy.groupInfo(proto));
+    } else if (request instanceof PeerInfoRequest) {
+      final PeerInfoRequestProto proto =
+          ClientProtoUtils.toPeerInfoRequestProto(
+              (PeerInfoRequest) request);
+      return ClientProtoUtils.toPeerInfoReply(proxy.peerInfo(proto));
     } else if (request instanceof TransferLeadershipRequest) {
       final TransferLeadershipRequestProto proto = ClientProtoUtils.toTransferLeadershipRequestProto(
           (TransferLeadershipRequest) request);

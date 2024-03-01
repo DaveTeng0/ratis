@@ -73,4 +73,8 @@ service AdminProtocolService {
 
   rpc groupInfo(ratis.common.GroupInfoRequestProto)
       returns(ratis.common.GroupInfoReplyProto) {}
+
+  rpc peerInfo(ratis.common.PeerInfoRequestProto)
+      returns(ratis.common.PeerInfoReplyProto) {}
+
 }

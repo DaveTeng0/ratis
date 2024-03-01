@@ -28,6 +28,8 @@ public interface AdminAsynchronousProtocol {
 
   CompletableFuture<RaftClientReply> groupManagementAsync(GroupManagementRequest request);
 
+  CompletableFuture<PeerInfoReply> getPeerInfoAsync(PeerInfoRequest request);
+
   CompletableFuture<RaftClientReply> snapshotManagementAsync(SnapshotManagementRequest request);
 
   CompletableFuture<RaftClientReply> leaderElectionManagementAsync(LeaderElectionManagementRequest request);

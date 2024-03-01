@@ -30,6 +30,8 @@ import org.apache.ratis.proto.RaftProtos.GroupListReplyProto;
 import org.apache.ratis.proto.RaftProtos.GroupListRequestProto;
 import org.apache.ratis.proto.RaftProtos.GroupManagementRequestProto;
 import org.apache.ratis.proto.RaftProtos.LeaderElectionManagementRequestProto;
+import org.apache.ratis.proto.RaftProtos.PeerInfoReplyProto;
+import org.apache.ratis.proto.RaftProtos.PeerInfoRequestProto;
 import org.apache.ratis.proto.RaftProtos.RaftClientReplyProto;
 import org.apache.ratis.proto.RaftProtos.RaftClientRequestProto;
 import org.apache.ratis.proto.RaftProtos.SetConfigurationRequestProto;
@@ -182,6 +184,13 @@ public class GrpcClientProtocolClient implements Closeable {
     return adminBlockingStub
         .withDeadlineAfter(requestTimeoutDuration.getDuration(), requestTimeoutDuration.getUnit())
         .groupInfo(request);
+  }
+
+  PeerInfoReplyProto peerInfo(
+      PeerInfoRequestProto request) {
+    return adminBlockingStub
+        .withDeadlineAfter(requestTimeoutDuration.getDuration(), requestTimeoutDuration.getUnit())
+        .peerInfo(request);
   }
 
   RaftClientReplyProto setConfiguration(

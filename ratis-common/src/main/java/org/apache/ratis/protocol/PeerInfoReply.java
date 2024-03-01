@@ -29,7 +29,7 @@ public class PeerInfoReply extends RaftClientReply {
   private long currentTerm;
   private long lastCommitIndex;
   private long lastAppliedIndex;
-  private List<Long> followerNextIdx;
+  private List<Long> followerNextIndex;
   private long lastSnapshotIndex;
 
   @SuppressWarnings("parameternumber")
@@ -40,8 +40,8 @@ public class PeerInfoReply extends RaftClientReply {
                        long currentTerm,
                        long lastCommitIndex,
                        long lastAppliedIndex,
-                       List<Long> followerNextIdx,
-                       long lastSnapshotIndex
+                       long lastSnapshotIndex,
+                       List<Long> followerNextIndex
   ) {
     this(request.getClientId(),
         request.getServerId(),
@@ -53,8 +53,8 @@ public class PeerInfoReply extends RaftClientReply {
         currentTerm,
         lastCommitIndex,
         lastAppliedIndex,
-        followerNextIdx,
-        lastSnapshotIndex);
+        lastSnapshotIndex,
+        followerNextIndex);
 
   }
 
@@ -69,16 +69,16 @@ public class PeerInfoReply extends RaftClientReply {
                        long currentTerm,
                        long lastCommitIndex,
                        long lastAppliedIndex,
-                       List<Long> followerNextIdx,
-                       long lastSnapshotIndex) {
+                       long lastSnapshotIndex,
+                       List<Long> followerNextIndex) {
     super(clientId, serverId, groupId, callId, true, null, null, 0L, commitInfos);
     this.group = group;
     this.roleInfoProto = roleInfoProto;
     this.currentTerm = currentTerm;
     this.lastCommitIndex = lastCommitIndex;
     this.lastAppliedIndex = lastAppliedIndex;
-    this.followerNextIdx = followerNextIdx;
     this.lastSnapshotIndex = lastSnapshotIndex;
+    this.followerNextIndex = followerNextIndex;
   }
 
   public RaftProtos.RoleInfoProto getRoleInfoProto() {
@@ -101,8 +101,8 @@ public class PeerInfoReply extends RaftClientReply {
     return lastAppliedIndex;
   }
 
-  public List<Long> getFollowerNextIdx() {
-    return followerNextIdx;
+  public List<Long> getFollowerNextIndex() {
+    return followerNextIndex;
   }
 
   public long getLastSnapshotIndex() {

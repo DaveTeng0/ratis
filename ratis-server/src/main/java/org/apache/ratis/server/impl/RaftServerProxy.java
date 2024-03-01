@@ -619,6 +619,17 @@ class RaftServerProxy implements RaftServer {
         server -> server.getGroupInfo(request));
   }
 
+  @Override
+  public PeerInfoReply getPeerInfo(PeerInfoRequest request) throws IOException {
+    return null;
+  }
+
+  @Override
+  public CompletableFuture<PeerInfoReply> getPeerInfoAsync(PeerInfoRequest request) {
+    return null;
+  }
+
+
   /**
    * Handle a raft configuration change request from client.
    */

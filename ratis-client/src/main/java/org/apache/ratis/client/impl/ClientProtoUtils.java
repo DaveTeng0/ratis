@@ -18,6 +18,7 @@
 package org.apache.ratis.client.impl;
 
 import org.apache.ratis.datastream.impl.DataStreamReplyByteBuffer;
+import org.apache.ratis.proto.RaftProtos;
 import org.apache.ratis.proto.RaftProtos.AlreadyClosedExceptionProto;
 import org.apache.ratis.proto.RaftProtos.ClientMessageEntryProto;
 import org.apache.ratis.proto.RaftProtos.GroupAddRequestProto;
@@ -44,25 +45,7 @@ import org.apache.ratis.proto.RaftProtos.SnapshotCreateRequestProto;
 import org.apache.ratis.proto.RaftProtos.SnapshotManagementRequestProto;
 import org.apache.ratis.proto.RaftProtos.StateMachineExceptionProto;
 import org.apache.ratis.proto.RaftProtos.TransferLeadershipRequestProto;
-import org.apache.ratis.protocol.ClientId;
-import org.apache.ratis.protocol.DataStreamReply;
-import org.apache.ratis.protocol.GroupInfoReply;
-import org.apache.ratis.protocol.GroupInfoRequest;
-import org.apache.ratis.protocol.GroupListReply;
-import org.apache.ratis.protocol.GroupListRequest;
-import org.apache.ratis.protocol.GroupManagementRequest;
-import org.apache.ratis.protocol.LeaderElectionManagementRequest;
-import org.apache.ratis.protocol.Message;
-import org.apache.ratis.protocol.RaftClientReply;
-import org.apache.ratis.protocol.RaftClientRequest;
-import org.apache.ratis.protocol.RaftGroupId;
-import org.apache.ratis.protocol.RaftGroupMemberId;
-import org.apache.ratis.protocol.RaftPeer;
-import org.apache.ratis.protocol.RaftPeerId;
-import org.apache.ratis.protocol.RoutingTable;
-import org.apache.ratis.protocol.SetConfigurationRequest;
-import org.apache.ratis.protocol.SnapshotManagementRequest;
-import org.apache.ratis.protocol.TransferLeadershipRequest;
+import org.apache.ratis.protocol.*;
 import org.apache.ratis.protocol.exceptions.AlreadyClosedException;
 import org.apache.ratis.protocol.exceptions.DataStreamException;
 import org.apache.ratis.protocol.exceptions.LeaderNotReadyException;
@@ -369,6 +352,26 @@ public interface ClientProtoUtils {
     return b.build();
   }
 
+  static RaftProtos.PeerInfoReplyProto toPeerInfoReplyProto(PeerInfoReply reply) {
+    final RaftProtos.PeerInfoReplyProto.Builder b =
+        RaftProtos.PeerInfoReplyProto.newBuilder();
+    if (reply != null) {
+      b.setRpcReply(toRaftRpcReplyProtoBuilder(reply.getClientId().toByteString(),
+          reply.getServerId().toByteString(), reply.getRaftGroupId(),
+          reply.getCallId(), reply.isSuccess()));
+      if (reply.getRaftGroupId() != null) {
+        b.setGroup(ProtoUtils.toRaftGroupProtoBuilder(reply.getGroup()));
+        b.setRole(reply.getRoleInfoProto());
+      }
+      b.setCurrentTerm(reply.getCurrentTerm());
+      b.setLastCommitIndex(reply.getLastCommitIndex());
+      b.setLastAppliedIndex(reply.getLastAppliedIndex());
+      b.setLastAppliedIndex(reply.getLastSnapshotIndex());
+    }
+    return b.build();
+  }
+
+
   static RaftClientReply getRaftClientReply(DataStreamReply reply) {
     if (!(reply instanceof DataStreamReplyByteBuffer)) {
       throw new IllegalStateException("Unexpected " + reply.getClass() + ": reply is " + reply);
@@ -509,6 +512,23 @@ public interface ClientProtoUtils {
         replyProto.hasConf()? replyProto.getConf(): null);
   }
 
+  static PeerInfoReply toPeerInfoReply(RaftProtos.PeerInfoReplyProto replyProto) {
+    final RaftRpcReplyProto rpc = replyProto.getRpcReply();
+    return new PeerInfoReply(ClientId.valueOf(rpc.getRequestorId()),
+        RaftPeerId.valueOf(rpc.getReplyId()),
+        ProtoUtils.toRaftGroupId(rpc.getRaftGroupId()),
+        rpc.getCallId(),
+        replyProto.getCommitInfosList(),
+        ProtoUtils.toRaftGroup(replyProto.getGroup()),
+        replyProto.getRole(),
+        replyProto.getCurrentTerm(),
+        replyProto.getLastCommitIndex(),
+        replyProto.getLastAppliedIndex(),
+        replyProto.getLastSnapshotIndex(),
+        replyProto.getFollowerNextIndexList());
+  }
+
+
   static Message toMessage(final ClientMessageEntryProto p) {
     return Message.valueOf(p.getContent());
   }
@@ -629,6 +649,17 @@ public interface ClientProtoUtils {
   }
 
 
+  static PeerInfoRequest toPeerInfoRequest(
+      RaftProtos.PeerInfoRequestProto p) {
+    final RaftRpcRequestProto m = p.getRpcRequest();
+    return new PeerInfoRequest(
+        ClientId.valueOf(m.getRequestorId()),
+        RaftPeerId.valueOf(m.getReplyId()),
+        ProtoUtils.toRaftGroupId(m.getRaftGroupId()),
+        m.getCallId());
+  }
+
+
   static GroupManagementRequestProto toGroupManagementRequestProto(GroupManagementRequest request) {
     final GroupManagementRequestProto.Builder b = GroupManagementRequestProto.newBuilder()
         .setRpcRequest(toRaftRpcRequestProtoBuilder(request));
@@ -718,6 +749,14 @@ public interface ClientProtoUtils {
         .setRpcRequest(toRaftRpcRequestProtoBuilder(request))
         .build();
   }
+
+  static RaftProtos.PeerInfoRequestProto toPeerInfoRequestProto(
+      PeerInfoRequest request) {
+    return RaftProtos.PeerInfoRequestProto.newBuilder()
+        .setRpcRequest(toRaftRpcRequestProtoBuilder(request))
+        .build();
+  }
+
 
   static String toString(RaftClientRequestProto proto) {
     final RaftRpcRequestProto rpc = proto.getRpcRequest();

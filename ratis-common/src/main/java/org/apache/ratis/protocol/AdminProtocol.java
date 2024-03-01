@@ -27,6 +27,8 @@ public interface AdminProtocol {
 
   RaftClientReply groupManagement(GroupManagementRequest request) throws IOException;
 
+  PeerInfoReply getPeerInfo(PeerInfoRequest request) throws IOException;
+
   RaftClientReply snapshotManagement(SnapshotManagementRequest request) throws IOException;
 
   default RaftClientReply leaderElectionManagement(LeaderElectionManagementRequest request) throws IOException {

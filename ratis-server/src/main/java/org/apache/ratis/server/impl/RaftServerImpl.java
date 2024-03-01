@@ -41,23 +41,7 @@ import org.apache.ratis.proto.RaftProtos.RequestVoteRequestProto;
 import org.apache.ratis.proto.RaftProtos.RoleInfoProto;
 import org.apache.ratis.proto.RaftProtos.StartLeaderElectionReplyProto;
 import org.apache.ratis.proto.RaftProtos.StartLeaderElectionRequestProto;
-import org.apache.ratis.protocol.ClientInvocationId;
-import org.apache.ratis.protocol.GroupInfoReply;
-import org.apache.ratis.protocol.GroupInfoRequest;
-import org.apache.ratis.protocol.LeaderElectionManagementRequest;
-import org.apache.ratis.protocol.Message;
-import org.apache.ratis.protocol.RaftClientAsynchronousProtocol;
-import org.apache.ratis.protocol.RaftClientProtocol;
-import org.apache.ratis.protocol.RaftClientReply;
-import org.apache.ratis.protocol.RaftClientRequest;
-import org.apache.ratis.protocol.RaftGroup;
-import org.apache.ratis.protocol.RaftGroupId;
-import org.apache.ratis.protocol.RaftGroupMemberId;
-import org.apache.ratis.protocol.RaftPeer;
-import org.apache.ratis.protocol.RaftPeerId;
-import org.apache.ratis.protocol.SetConfigurationRequest;
-import org.apache.ratis.protocol.SnapshotManagementRequest;
-import org.apache.ratis.protocol.TransferLeadershipRequest;
+import org.apache.ratis.protocol.*;
 import org.apache.ratis.protocol.exceptions.GroupMismatchException;
 import org.apache.ratis.protocol.exceptions.LeaderNotReadyException;
 import org.apache.ratis.protocol.exceptions.LeaderSteppingDownException;
@@ -644,6 +628,11 @@ class RaftServerImpl implements RaftServer.Division,
     return new GroupInfoReply(request, getCommitInfos(), getGroup(), getRoleInfoProto(),
         dir.isHealthy(), conf);
   }
+
+  PeerInfoReply getPeerInfo(PeerInfoRequest request) {
+    return null;
+  }
+
 
   RoleInfoProto getRoleInfoProto() {
     return role.buildRoleInfoProto(this);
