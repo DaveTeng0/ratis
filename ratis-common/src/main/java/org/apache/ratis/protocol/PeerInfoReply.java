@@ -19,7 +19,6 @@ package org.apache.ratis.protocol;
 
 import org.apache.ratis.proto.RaftProtos;
 
-import java.util.Collection;
 import java.util.List;
 
 public class PeerInfoReply extends RaftClientReply {

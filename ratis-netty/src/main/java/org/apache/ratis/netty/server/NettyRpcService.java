@@ -21,10 +21,7 @@ import org.apache.ratis.client.impl.ClientProtoUtils;
 import org.apache.ratis.netty.NettyConfigKeys;
 import org.apache.ratis.netty.NettyRpcProxy;
 import org.apache.ratis.netty.NettyUtils;
-import org.apache.ratis.protocol.GroupInfoReply;
-import org.apache.ratis.protocol.GroupListReply;
-import org.apache.ratis.protocol.RaftClientReply;
-import org.apache.ratis.protocol.RaftPeerId;
+import org.apache.ratis.protocol.*;
 import org.apache.ratis.rpc.SupportedRpcType;
 import org.apache.ratis.server.RaftServer;
 import org.apache.ratis.server.RaftServerRpcWithProxy;
@@ -289,7 +286,16 @@ public final class NettyRpcService extends RaftServerRpcWithProxy<NettyRpcProxy,
               .setGroupInfoReply(ClientProtoUtils.toGroupInfoReplyProto(groupInfoReply))
               .build();
 
-        case RAFTNETTYSERVERREQUEST_NOT_SET:
+      case PEERINFOREQUEST:
+        final PeerInfoRequestProto peerInfoRequest = proto.getPeerInfoRequest();
+        rpcRequest = peerInfoRequest.getRpcRequest();
+        final PeerInfoReply peerInfoReply = server.getPeerInfo(
+            ClientProtoUtils.toPeerInfoRequest(peerInfoRequest));
+        return RaftNettyServerReplyProto.newBuilder()
+            .setPeerInfoReply(ClientProtoUtils.toPeerInfoReplyProto(peerInfoReply))
+            .build();
+
+      case RAFTNETTYSERVERREQUEST_NOT_SET:
           throw new IllegalArgumentException("Request case not set in proto: "
               + proto.getRaftNettyServerRequestCase());
         default:

@@ -20,14 +20,7 @@ package org.apache.ratis.grpc.server;
 import org.apache.ratis.client.impl.ClientProtoUtils;
 import org.apache.ratis.grpc.GrpcUtil;
 import org.apache.ratis.proto.RaftProtos.*;
-import org.apache.ratis.protocol.AdminAsynchronousProtocol;
-import org.apache.ratis.protocol.GroupInfoRequest;
-import org.apache.ratis.protocol.GroupListRequest;
-import org.apache.ratis.protocol.GroupManagementRequest;
-import org.apache.ratis.protocol.LeaderElectionManagementRequest;
-import org.apache.ratis.protocol.SetConfigurationRequest;
-import org.apache.ratis.protocol.SnapshotManagementRequest;
-import org.apache.ratis.protocol.TransferLeadershipRequest;
+import org.apache.ratis.protocol.*;
 import org.apache.ratis.thirdparty.io.grpc.stub.StreamObserver;
 import org.apache.ratis.proto.RaftProtos.RaftClientReplyProto;
 import org.apache.ratis.proto.RaftProtos.GroupManagementRequestProto;
@@ -65,7 +58,9 @@ public class GrpcAdminProtocolService extends AdminProtocolServiceImplBase {
 
   @Override
   public void peerInfo(PeerInfoRequestProto proto, StreamObserver<PeerInfoReplyProto> responseObserver) {
-    //TODO
+    final PeerInfoRequest request = ClientProtoUtils.toPeerInfoRequest(proto);
+    GrpcUtil.asyncCall(responseObserver, () -> protocol.getPeerInfoAsync(request),
+        ClientProtoUtils::toPeerInfoReplyProto);
   }
 
   @Override

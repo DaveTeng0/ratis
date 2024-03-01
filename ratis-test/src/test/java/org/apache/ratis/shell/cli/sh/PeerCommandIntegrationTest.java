@@ -121,4 +121,34 @@ public abstract class PeerCommandIntegrationTest <CLUSTER extends MiniRaftCluste
     }, 10, TimeDuration.valueOf(1, TimeUnit.SECONDS), "testPeerSetPriorityCommand", LOG);
   }
 
+  @Test
+  public void testPeerInfoCommand() throws Exception {
+    runWithNewCluster(NUM_SERVERS, this::runTestPeerInfoCommand);
+  }
+
+  void runTestPeerInfoCommand(MiniRaftCluster cluster) throws Exception {
+    final RaftServer.Division leader = RaftTestUtil.waitForLeader(cluster);
+    final String peerAddresses = getClusterAddress(cluster);
+
+    final StringPrintStream out = new StringPrintStream();
+    RatisShell shell = new RatisShell(out.getPrintStream());
+    int ret = shell.run("peer", "info", "-peers", peerAddresses, "-peerId",
+        leader.getId().toString());
+    Assertions.assertEquals(0, ret);
+    String result = out.toString().trim();
+    String expected_ = String.format("The peerId %s (server %s) is in 1 groups, and the groupIds is: [%s]",
+        leader.getId(), leader.getPeer().getAddress(), leader.getGroup().getGroupId());
+
+    String expected = String.format("The peerId %s has current term: %d, last commitIndex: %d, last appliedIndex: %d"
+        + ", last snapshotIndex: %d, followerNextIndices: %s",
+        leader.getId(),
+        leader.getInfo().getCurrentTerm(),
+        leader.getRaftLog().getLastCommittedIndex(),
+        leader.getStateMachine().getLastAppliedTermIndex().getIndex(),
+        leader.getStateMachine().getLatestSnapshot().getIndex(),
+        leader.getInfo().getFollowerNextIndices()
+    );
+    Assertions.assertEquals(expected, result);
+  }
+
 }

@@ -621,12 +621,27 @@ class RaftServerProxy implements RaftServer {
 
   @Override
   public PeerInfoReply getPeerInfo(PeerInfoRequest request) throws IOException {
-    return null;
+    RaftGroupId raftGroupId = request.getRaftGroupId();
+    RaftServerImpl raftServer = getImpl(raftGroupId);
+    StateMachine stateMachine = raftServer.getStateMachine();
+    List<Long> followerNextIndices =
+        Arrays.stream(raftServer.getInfo().getFollowerNextIndices())
+            .boxed().collect(Collectors.toList());
+
+    return new PeerInfoReply(request,
+        raftServer.getGroup(),
+        raftServer.getRoleInfoProto(),
+        raftServer.getInfo().getCurrentTerm(),
+        getImpl(raftGroupId).getRaftLog().getLastCommittedIndex(),
+        stateMachine.getLastAppliedTermIndex().getIndex(),
+        followerNextIndices,
+        stateMachine.getLatestSnapshot().getIndex());
   }
 
   @Override
   public CompletableFuture<PeerInfoReply> getPeerInfoAsync(PeerInfoRequest request) {
-    return null;
+    return getImplFuture(request.getRaftGroupId()).thenApplyAsync(
+        server -> server.getPeerInfo(request));
   }
 
 

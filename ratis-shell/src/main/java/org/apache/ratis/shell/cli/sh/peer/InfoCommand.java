@@ -22,6 +22,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.ratis.client.RaftClient;
+import org.apache.ratis.proto.RaftProtos;
 import org.apache.ratis.protocol.PeerInfoReply;
 import org.apache.ratis.protocol.RaftPeerId;
 import org.apache.ratis.shell.cli.RaftUtils;
@@ -57,10 +58,19 @@ public class InfoCommand extends AbstractRatisCommand{
     try(final RaftClient raftClient = RaftUtils.createClient(getRaftGroup())) {
       PeerInfoReply peerInfoReply = raftClient.getPeerManagementApi(peerId).info();
 
-      printf(String.format("For peerId %s, current term: %d, last commitIndex: %d, last appliedIndex: %d"
-              + ", last snapshotIndex: %d",
-          peerInfoReply.getServerId(), peerInfoReply.getCurrentTerm(), peerInfoReply.getLastCommitIndex(),
-          peerInfoReply.getLastAppliedIndex(), peerInfoReply.getLastSnapshotIndex()));
+      StringBuilder sb = new StringBuilder(
+          String.format("The peerId %s has current term: %d, last commitIndex: %d, last appliedIndex: %d"
+                  + ", last snapshotIndex: %d",
+              peerInfoReply.getServerId(),
+              peerInfoReply.getCurrentTerm(),
+              peerInfoReply.getLastCommitIndex(),
+              peerInfoReply.getLastAppliedIndex(),
+              peerInfoReply.getLastSnapshotIndex())
+      );
+      if (peerInfoReply.getRoleInfoProto().getRole() == RaftProtos.RaftPeerRole.LEADER) {
+        sb.append(", followerNextIndices: ").append(peerInfoReply.getFollowerNextIndex());
+      }
+      printf(sb.toString());
     }
 
     return 0;
