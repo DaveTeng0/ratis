@@ -641,17 +641,39 @@ class RaftServerImpl implements RaftServer.Division,
 
   PeerInfoReply getPeerInfo(PeerInfoRequest request) {
     LogProtoUtils.toRaftConfigurationProtoBuilder(getRaftConf()).build();
-    List<Long> followerNextIdx = Arrays.stream(getInfo().getFollowerNextIndices())
-        .boxed().collect(Collectors.toList());
+    List<Long> followerNextIndex = null;
+    if (getInfo().isLeader()) {
+      System.out.println("*******_______________ isLeader ");
+      getInfo();
+      System.out.println("*******_______________ getInfo ");
+      getInfo().getFollowerNextIndices();
+      System.out.println("*******_______________ getFollowerNextIndices ");
+
+      followerNextIndex = Arrays.stream(getInfo().getFollowerNextIndices())
+          .boxed().collect(Collectors.toList());
+    }
+    System.out.println("*******_______________ getFollowerNextIndices..stream:  " + followerNextIndex);
+
+    long cmtidx = getRaftLog().getLastCommittedIndex();
+    System.out.println("*****_________ getRaftLog().getLastCommittedIndex(): " + cmtidx);
+    long appTermIdx = getStateMachine().getLastAppliedTermIndex().getIndex();
+    System.out.println("*****__________ getStateMachine().getLastAppliedTermIndex().getIndex(): " + appTermIdx);
+
+    SnapshotInfo snapshotInfo = getStateMachine().getLatestSnapshot();
+    long snidx = 0;
+    if (snapshotInfo != null) {
+      snidx = snapshotInfo.getIndex();
+    }
+    System.out.println("*****__________ snidx: " + snidx);
 
     return new PeerInfoReply(request,
         getGroup(),
         getRoleInfoProto(),
         getInfo().getCurrentTerm(),
-        getRaftLog().getLastCommittedIndex(),
-        stateMachine.getLastAppliedTermIndex().getIndex(),
-        followerNextIdx,
-        stateMachine.getLatestSnapshot().getIndex());
+        cmtidx,
+        appTermIdx,
+        followerNextIndex,
+        snidx);
   }
 
   RoleInfoProto getRoleInfoProto() {

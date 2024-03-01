@@ -128,8 +128,10 @@ public abstract class PeerCommandIntegrationTest <CLUSTER extends MiniRaftCluste
 
   void runTestPeerInfoCommand(MiniRaftCluster cluster) throws Exception {
     final RaftServer.Division leader = RaftTestUtil.waitForLeader(cluster);
+    leader.getStateMachine().takeSnapshot();
     final String peerAddresses = getClusterAddress(cluster);
 
+//    Thread.sleep(5000);
     final StringPrintStream out = new StringPrintStream();
     RatisShell shell = new RatisShell(out.getPrintStream());
     int ret = shell.run("peer", "info", "-peers", peerAddresses, "-peerId",

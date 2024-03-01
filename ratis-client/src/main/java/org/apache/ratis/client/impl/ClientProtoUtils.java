@@ -386,7 +386,8 @@ public interface ClientProtoUtils {
       b.setCurrentTerm(reply.getCurrentTerm());
       b.setLastCommitIndex(reply.getLastCommitIndex());
       b.setLastAppliedIndex(reply.getLastAppliedIndex());
-      b.setLastAppliedIndex(reply.getLastSnapshotIndex());
+      b.setLastSnapshotIndex(reply.getLastSnapshotIndex());
+      b.addAllFollowerNextIndex(reply.getFollowerNextIndex());
     }
     return b.build();
   }
