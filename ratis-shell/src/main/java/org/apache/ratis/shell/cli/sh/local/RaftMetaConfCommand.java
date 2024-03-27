@@ -25,7 +25,7 @@ import org.apache.ratis.proto.RaftProtos.RaftConfigurationProto;
 import org.apache.ratis.proto.RaftProtos.RaftPeerProto;
 import org.apache.ratis.proto.RaftProtos.RaftPeerRole;
 import org.apache.ratis.protocol.RaftPeerId;
-import org.apache.ratis.shell.cli.RaftUtils;
+//import org.apache.ratis.shell.cli.RaftUtils;
 import org.apache.ratis.shell.cli.sh.command.AbstractCommand;
 import org.apache.ratis.shell.cli.sh.command.Context;
 import org.apache.ratis.thirdparty.com.google.protobuf.ByteString;
@@ -73,7 +73,8 @@ public class RaftMetaConfCommand extends AbstractCommand {
     List<RaftPeerProto> raftPeerProtos = new ArrayList<>();
     for (String idWithAddress : peersStr.split(",")) {
       String[] tmp = idWithAddress.split("\\|");
-      String message = "Please make sure to provide list of peers in format <P0_Id:P0_HOST:P0_PORT,P1_Id:P1_HOST:P1_PORT,P2_Id:P2_HOST:P2_PORT>";
+      String message = "Please make sure to provide list of peers" +
+          " in format <P0_Id:P0_HOST:P0_PORT,P1_Id:P1_HOST:P1_PORT,P2_Id:P2_HOST:P2_PORT>";
       if (tmp.length < 2) {
         printf(message);
         return -1;
