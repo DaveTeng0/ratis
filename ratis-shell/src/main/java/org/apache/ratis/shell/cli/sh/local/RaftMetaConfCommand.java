@@ -24,6 +24,7 @@ import org.apache.ratis.proto.RaftProtos.LogEntryProto;
 import org.apache.ratis.proto.RaftProtos.RaftConfigurationProto;
 import org.apache.ratis.proto.RaftProtos.RaftPeerProto;
 import org.apache.ratis.proto.RaftProtos.RaftPeerRole;
+import org.apache.ratis.protocol.RaftPeerId;
 import org.apache.ratis.shell.cli.RaftUtils;
 import org.apache.ratis.shell.cli.sh.command.AbstractCommand;
 import org.apache.ratis.shell.cli.sh.command.Context;
@@ -70,8 +71,17 @@ public class RaftMetaConfCommand extends AbstractCommand {
       return -1;
     }
     List<RaftPeerProto> raftPeerProtos = new ArrayList<>();
-    for (String address : peersStr.split(",")) {
-      String peerId = RaftUtils.getPeerId(parseInetSocketAddress(address)).toString();
+    for (String idWithAddress : peersStr.split(",")) {
+      String[] tmp = idWithAddress.split("\\|");
+      String message = "Please make sure to provide list of peers in format <P0_Id:P0_HOST:P0_PORT,P1_Id:P1_HOST:P1_PORT,P2_Id:P2_HOST:P2_PORT>";
+      if (tmp.length < 2) {
+        printf(message);
+        return -1;
+      }
+//      String peerId = RaftUtils.getPeerId(parseInetSocketAddress(idWithAddress)).toString();
+      String peerId = RaftPeerId.getRaftPeerId(tmp[0]).toString();
+
+      String address = parseInetSocketAddress(tmp[1]).toString();
       raftPeerProtos.add(RaftPeerProto.newBuilder()
           .setId(ByteString.copyFrom(peerId.getBytes(StandardCharsets.UTF_8))).setAddress(address)
           .setStartupRole(RaftPeerRole.FOLLOWER).build());
