@@ -36,10 +36,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.ratis.thirdparty.com.google.protobuf.ByteString;
@@ -49,6 +48,8 @@ import org.junit.jupiter.api.Test;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -81,12 +82,16 @@ public class LocalCommandIntegrationTest {
   }
 
 
-  void getRaftConf(Path path, int index) throws IOException {
+  void getRaftConf(String peerStr, Path path, int index) throws IOException {
     Map<String, String> map = new HashMap<>();
-    map.put("peer1_Id", "host1:9872");
-    map.put("peer2_Id", "host2:9872");
-    map.put("peer3_Id", "host3:9872");
-    map.put("peer4_Id", "host4:9872");
+//    if (containsPeerId(peerStr)) {
+//
+//    } else {
+      map.put("peer1_Id", "host1:9872");
+      map.put("peer2_Id", "host2:9872");
+      map.put("peer3_Id", "host3:9872");
+      map.put("peer4_Id", "host4:9872");
+//    }
     List<RaftProtos.RaftPeerProto> raftPeerProtos = new ArrayList<>();
     for (Map.Entry<String, String> en : map.entrySet()) {
       raftPeerProtos.add(RaftProtos.RaftPeerProto.newBuilder()
@@ -102,46 +107,77 @@ public class LocalCommandIntegrationTest {
       generateLogEntryProto.writeTo(out);
     }
   }
+
+  private static List<String> data() {
+    return Arrays.asList(
+        "peer1_Id|host1:9872,peer2_id|host2:9872,peer3_id|host3:9872",
+        "host1:9872,host2:9872,host3:9872");
+  }
+
+//  @ParameterizedTest
+//  @MethodSource("data")
   @Test
   public void testRunMethod(@TempDir Path tempDir) throws Exception {
     Path output = tempDir
         .resolve(RAFT_META_CONF);
     int index = 1;
-    getRaftConf(output, index);
+    String[] testPeersList = {"peer1_Id|host1:9872,peer2_id|host2:9872,peer3_id|host3:9872",
+    "host1:9872,host2:9872,host3:9872"};
 
-//    Options options = new Options();
-//    options.addOption(Option.builder("p").longOpt(RaftMetaConfCommand.PEER_OPTION_NAME).hasArg().build());
-//    options.addOption(Option.builder("d").longOpt(RaftMetaConfCommand.PATH_OPTION_NAME).hasArg().build());
-//
-//    String[] args = {"--peers=peer1|host1:port1,peer2|host2:port2", "--path=" + tempDir.toAbsolutePath().toString()};
-//    CommandLine commandLine = new DefaultParser().parse(options, args);
+    for (String peersStr : testPeersList) {
+      getRaftConf(peersStr, output, index);
 
-      final StringPrintStream out = new StringPrintStream();
+      StringPrintStream out = new StringPrintStream();
       RatisShell shell = new RatisShell(out.getPrintStream());
-      String peersUpdated = "peer1_Id|host1:9872,peer2_id|host2:9872,peer3_id|host3:9872";
-      int ret = shell.run("local", "raftMetaConf", "-peers", peersUpdated, "-path", tempDir.toString());
+//      String peersUpdated = "peer1_Id|host1:9872,peer2_id|host2:9872,peer3_id|host3:9872";
+      int ret = shell.run("local", "raftMetaConf", "-peers", peersStr, "-path", tempDir.toString());
       Assertions.assertEquals(0, ret);
 
-    long indexFromNewConf;
-    List<RaftPeerProto> peers;
-    // Add additional assertions to verify the contents of the new-raft-meta.conf file
-    try (InputStream in = Files.newInputStream(tempDir.resolve(NEW_RAFT_META_CONF))) {
-      LogEntryProto logEntry = LogEntryProto.newBuilder().mergeFrom(in).build();
-      indexFromNewConf = logEntry.getIndex();
-      peers = logEntry.getConfigurationEntry().getPeersList();
+      long indexFromNewConf;
+      List<RaftPeerProto> peers;
+      // Add additional assertions to verify the contents of the new-raft-meta.conf file
+      try (InputStream in = Files.newInputStream(tempDir.resolve(NEW_RAFT_META_CONF))) {
+        LogEntryProto logEntry = LogEntryProto.newBuilder().mergeFrom(in).build();
+        indexFromNewConf = logEntry.getIndex();
+        peers = logEntry.getConfigurationEntry().getPeersList();
+      }
+
+      Assertions.assertEquals(index + 1, indexFromNewConf);
+
+//      List<String> list;
+//    StringBuilder tmp  = new StringBuilder();
+      String tmp = "";
+      boolean bb = containsPeerId(peersStr);
+      System.out.println("**_____  "+ bb + " => containsPeerId(" + peersStr + ")");
+      if (containsPeerId(peersStr)) {
+        tmp = peers.stream()
+            .map(peer -> peer.getId().toStringUtf8() + "|" + peer.getAddress())
+            .collect(Collectors.joining(","));
+//      tmp =
+//    .forEach(
+//        peer ->
+//            tmp.append(peer.getId().toStringUtf8()).append("|").append(peer.getAddress()).append(","));
+//      peers.stream().forEach(peer ->
+//          tmp.append(peer.getId().toStringUtf8()).append("|").append(peer.getAddress()).append(","));
+      } else {
+        tmp = peers.stream().map(RaftPeerProto::getAddress)
+            .collect(Collectors.joining(","));
+      }
+//    tmp.deleteCharAt(tmp.length() - 1); // delete last comma
+
+      Assertions.assertEquals(peersStr, tmp.toString());
+
     }
 
-    Assertions.assertEquals(index + 1, indexFromNewConf);
-    List<String> peersStr = peers.stream()
-        .map(peer -> peer.getId().toStringUtf8() + "|" + peer.getAddress())
-        .collect(Collectors.toList());
+  }
 
-    StringBuilder tmp = new StringBuilder();
-    peers.stream().forEach(peer ->
-        tmp.append(peer.getId().toStringUtf8()).append("|").append(peer.getAddress()).append(","));
-    tmp.deleteCharAt(tmp.length() - 1); // delete last comma
-
-    Assertions.assertEquals(peersUpdated, tmp.toString());
+  private boolean containsPeerId(String str) {
+    Pattern p = Pattern.compile("(?:\\w+\\|\\w+:\\d+,?)+");
+    Matcher m = p.matcher(str);
+//    while(m.find()) {
+//      System.out.println(m.group());
+//    }
+    return m.find();
   }
 
 

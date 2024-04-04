@@ -26,6 +26,7 @@ import org.apache.ratis.proto.RaftProtos.RaftPeerProto;
 import org.apache.ratis.proto.RaftProtos.RaftPeerRole;
 import org.apache.ratis.protocol.RaftPeerId;
 //import org.apache.ratis.shell.cli.RaftUtils;
+import org.apache.ratis.shell.cli.RaftUtils;
 import org.apache.ratis.shell.cli.sh.command.AbstractCommand;
 import org.apache.ratis.shell.cli.sh.command.Context;
 import org.apache.ratis.thirdparty.com.google.protobuf.ByteString;
@@ -37,7 +38,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Command for generate a new raft-meta.conf file based on original raft-meta.conf and new peers,
@@ -70,19 +73,33 @@ public class RaftMetaConfCommand extends AbstractCommand {
       printf("peers or path can't be empty.");
       return -1;
     }
+    Set<String> addresses = new HashSet<>();
     List<RaftPeerProto> raftPeerProtos = new ArrayList<>();
     for (String idWithAddress : peersStr.split(",")) {
       String[] tmp = idWithAddress.split("\\|");
       String message = "Please make sure to provide list of peers" +
-          " in format <P0_Id:P0_HOST:P0_PORT,P1_Id:P1_HOST:P1_PORT,P2_Id:P2_HOST:P2_PORT>";
-      if (tmp.length < 2) {
+          " in format <P0_Id|P0_HOST:P0_PORT,P1_Id|P1_HOST:P1_PORT,P2_Id|P2_HOST:P2_PORT> or " +
+          "<P0_HOST:P0_PORT,P1_HOST:P1_PORT,P2_HOST:P2_PORT>";
+      if (tmp.length < 1 || tmp.length > 2) {
         printf(message);
         return -1;
       }
+      String address = parseInetSocketAddress(tmp[tmp.length - 1]).toString();
+      if (addresses.contains(address)) {
+        printf("Please make sure the addresses of peers have no duplicated value.");
+        return -1;
+      }
+      addresses.add(address);
 //      String peerId = RaftUtils.getPeerId(parseInetSocketAddress(idWithAddress)).toString();
-      String peerId = RaftPeerId.getRaftPeerId(tmp[0]).toString();
+      String peerId;
+      if (tmp.length == 2) {
+        // Peer ID is provided
+        peerId = RaftPeerId.getRaftPeerId(tmp[0]).toString();
+      } else {
+        // Peer ID is not provided
+        peerId = RaftUtils.getPeerId(parseInetSocketAddress(address)).toString(); // use host address as default value
+      }
 
-      String address = parseInetSocketAddress(tmp[1]).toString();
       raftPeerProtos.add(RaftPeerProto.newBuilder()
           .setId(ByteString.copyFrom(peerId.getBytes(StandardCharsets.UTF_8))).setAddress(address)
           .setStartupRole(RaftPeerRole.FOLLOWER).build());
