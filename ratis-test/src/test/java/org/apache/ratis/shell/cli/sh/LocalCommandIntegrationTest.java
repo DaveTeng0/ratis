@@ -114,6 +114,22 @@ public class LocalCommandIntegrationTest {
         "host1:9872,host2:9872,host3:9872");
   }
 
+  @Test
+  public void testDuplicatedPeerAddresses() throws Exception {
+    String[] testPeersList = {"peer1_Id1|host1:9872,peer2_id|host2:9872,peer1_id2|host1:9872",
+        "host1:9872,host2:9872,host1:9872"};
+
+    for (String  peersStr : testPeersList) {
+      StringPrintStream out = new StringPrintStream();
+      RatisShell shell = new RatisShell(out.getPrintStream());
+      int ret = shell.run("local", "raftMetaConf", "-peers", peersStr, "-path", "test");
+      Assertions.assertEquals(-1, ret);
+      String message = out.toString().trim();
+      Assertions.assertEquals("Please make sure the addresses of peers have no duplicated value.", message);
+
+    }
+  }
+
 //  @ParameterizedTest
 //  @MethodSource("data")
   @Test
