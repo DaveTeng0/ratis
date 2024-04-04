@@ -25,6 +25,7 @@ import org.apache.ratis.proto.RaftProtos.RaftConfigurationProto;
 import org.apache.ratis.proto.RaftProtos.RaftPeerProto;
 import org.apache.ratis.proto.RaftProtos.RaftPeerRole;
 import org.apache.ratis.protocol.RaftPeerId;
+import org.apache.ratis.shell.cli.RaftUtils;
 import org.apache.ratis.shell.cli.sh.command.AbstractCommand;
 import org.apache.ratis.shell.cli.sh.command.Context;
 import org.apache.ratis.thirdparty.com.google.protobuf.ByteString;
@@ -37,6 +38,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Command for generate a new raft-meta.conf file based on original raft-meta.conf and new peers,
@@ -86,7 +89,7 @@ public class RaftMetaConfCommand extends AbstractCommand {
         return -1;
       }
       addresses.add(address);
-      
+
       String peerId;
       if (peerIdWithAddressArray.length == 2) {
         // Peer ID is provided
