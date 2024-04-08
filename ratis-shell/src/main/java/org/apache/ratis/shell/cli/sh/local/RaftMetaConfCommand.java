@@ -74,19 +74,25 @@ public class RaftMetaConfCommand extends AbstractCommand {
       return -1;
     }
     Set<String> addresses = new HashSet<>();
+    Set<String> ids = new HashSet<>();
     List<RaftPeerProto> raftPeerProtos = new ArrayList<>();
     for (String idWithAddress : peersStr.split(",")) {
       String[] tmp = idWithAddress.split("\\|");
-      String message = "Please make sure to provide list of peers" +
+//      String.format("Failed to parse args for %s: %s", getCommandName(), e.getMessage()), e);
+
+      String message =
+          String.format("Failed to parse peer's Id and address for: %s, " +
+          "from option: -peers %s. \n" +
+          "Please make sure to provide list of peers" +
           " in format <P0_Id|P0_HOST:P0_PORT,P1_Id|P1_HOST:P1_PORT,P2_Id|P2_HOST:P2_PORT> or " +
-          "<P0_HOST:P0_PORT,P1_HOST:P1_PORT,P2_HOST:P2_PORT>";
+          "<P0_HOST:P0_PORT,P1_HOST:P1_PORT,P2_HOST:P2_PORT>", idWithAddress, peersStr);
       if (tmp.length < 1 || tmp.length > 2) {
         printf(message);
         return -1;
       }
       String address = parseInetSocketAddress(tmp[tmp.length - 1]).toString();
       if (addresses.contains(address)) {
-        printf("Please make sure the addresses of peers have no duplicated value.");
+        printf("Found duplicated address: %s. Please make sure the address of peer have no duplicated value.", address);
         return -1;
       }
       addresses.add(address);
@@ -95,6 +101,11 @@ public class RaftMetaConfCommand extends AbstractCommand {
       if (tmp.length == 2) {
         // Peer ID is provided
         peerId = RaftPeerId.getRaftPeerId(tmp[0]).toString();
+        if (ids.contains(peerId)) {
+          printf("Found duplicated id: %s. Please make sure the id of peer have no duplicated value.", peerId);
+          return -1;
+        }
+        ids.add(peerId);
       } else {
         // Peer ID is not provided
         peerId = RaftUtils.getPeerId(parseInetSocketAddress(address)).toString(); // use host address as default value

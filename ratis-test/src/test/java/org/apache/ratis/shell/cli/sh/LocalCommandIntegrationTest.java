@@ -116,21 +116,50 @@ public class LocalCommandIntegrationTest {
 
   @Test
   public void testDuplicatedPeerAddresses() throws Exception {
-    String[] testPeersList = {"peer1_Id1|host1:9872,peer2_id|host2:9872,peer1_id2|host1:9872",
+    String[] duplicatedAddressesList = {"peer1_id1|host1:9872,peer2_id|host2:9872,peer1_id2|host1:9872",
         "host1:9872,host2:9872,host1:9872"};
 
-    for (String  peersStr : testPeersList) {
+//    for (String  peersStr : duplicatedAddressesList) {
+//      StringPrintStream out = new StringPrintStream();
+//      RatisShell shell = new RatisShell(out.getPrintStream());
+//      int ret = shell.run("local", "raftMetaConf", "-peers", peersStr, "-path", "test");
+//      Assertions.assertEquals(-1, ret);
+//      String message = out.toString().trim();
+//      Assertions.assertEquals(String.format("Found duplicated address: %s. Please make sure the addresses of peers have no duplicated value.", addr), message);
+//    }
+    testDuplicatedPeers(duplicatedAddressesList, "address", "host1:9872");
+  }
+
+
+  @Test
+  public void testDuplicatedPeerIds() throws Exception {
+    String[] duplicatedIdsList = {"peer1_id1|host1:9872,peer2_id|host2:9872,peer1_id1|host3:9872"};
+
+//    for (String  peersStr : duplicatedIdsList) {
+//      StringPrintStream out = new StringPrintStream();
+//      RatisShell shell = new RatisShell(out.getPrintStream());
+//      int ret = shell.run("local", "raftMetaConf", "-peers", peersStr, "-path", "test");
+//      Assertions.assertEquals(-1, ret);
+//      String message = out.toString().trim();
+//      Assertions.assertEquals(String.format("Found duplicated id: %s. Please make sure the ids of peers have no duplicated value.", id), message);
+//
+//    }
+    testDuplicatedPeers(duplicatedIdsList, "id", "peer1_id1");
+  }
+
+  private void testDuplicatedPeers(String[] peersList, String expectedErrorMessagePart, String expectedDuplicatedValue) throws Exception {
+    for (String peersStr : peersList) {
       StringPrintStream out = new StringPrintStream();
       RatisShell shell = new RatisShell(out.getPrintStream());
       int ret = shell.run("local", "raftMetaConf", "-peers", peersStr, "-path", "test");
       Assertions.assertEquals(-1, ret);
       String message = out.toString().trim();
-      Assertions.assertEquals("Please make sure the addresses of peers have no duplicated value.", message);
-
+      Assertions.assertEquals(String.format("Found duplicated %s: %s. Please make sure the %s of peer have no duplicated value.",
+          expectedErrorMessagePart, expectedDuplicatedValue, expectedErrorMessagePart), message);
     }
   }
 
-//  @ParameterizedTest
+  //  @ParameterizedTest
 //  @MethodSource("data")
   @Test
   public void testRunMethod(@TempDir Path tempDir) throws Exception {
