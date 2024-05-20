@@ -45,7 +45,7 @@ public class RemoveCommand extends AbstractRatisCommand {
    * @param context command context
    */
   public RemoveCommand(Context context) {
-    super(context);
+    super(context.getPrintStream());
   }
 
   @Override

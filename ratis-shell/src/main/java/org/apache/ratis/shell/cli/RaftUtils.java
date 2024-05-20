@@ -69,10 +69,15 @@ public final class RaftUtils {
     RaftClientConfigKeys.Rpc.setRequestTimeout(properties,
         TimeDuration.valueOf(15, TimeUnit.SECONDS));
 
+    StringBuilder sb = new StringBuilder();
     // Since ratis-shell support GENERIC_COMMAND_OPTIONS, here we should
     // merge these options to raft properties to make it work.
     final Properties sys = System.getProperties();
-    sys.stringPropertyNames().forEach(key -> properties.set(key, sys.getProperty(key)));
+    sys.stringPropertyNames().forEach(key -> {
+      sb.append("k [" + key + "] = " + sys.getProperty(key) + ",,,,,,,  ");
+      properties.set(key, sys.getProperty(key));
+    });
+    System.out.println("*****______ sssssssssssss.  sys properties: " + sb.toString());
 
     ExponentialBackoffRetry retryPolicy = ExponentialBackoffRetry.newBuilder()
         .setBaseSleepTime(TimeDuration.valueOf(1000, TimeUnit.MILLISECONDS))

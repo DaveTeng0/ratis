@@ -40,7 +40,7 @@ public class ResumeCommand extends AbstractRatisCommand {
    * @param context command context
    */
   public ResumeCommand(Context context) {
-    super(context);
+    super(context.getPrintStream());
   }
 
   @Override

@@ -29,8 +29,8 @@ public abstract class AbstractCommand implements Command {
 
   private final PrintStream printStream;
 
-  protected AbstractCommand(Context context) {
-    printStream = context.getPrintStream();
+  protected AbstractCommand(PrintStream printStream) {
+    this.printStream = printStream;
   }
 
   public static InetSocketAddress parseInetSocketAddress(String address) {

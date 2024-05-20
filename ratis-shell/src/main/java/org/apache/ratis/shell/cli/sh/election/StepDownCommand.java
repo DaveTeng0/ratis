@@ -36,7 +36,7 @@ public class StepDownCommand extends AbstractRatisCommand {
    * @param context command context
    */
   public StepDownCommand(Context context) {
-    super(context);
+    super(context.getPrintStream());
   }
 
   @Override

@@ -40,7 +40,7 @@ public class TakeSnapshotCommand extends AbstractRatisCommand {
    * @param context command context
    */
   public TakeSnapshotCommand(Context context) {
-    super(context);
+    super(context.getPrintStream());
   }
 
   @Override

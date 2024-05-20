@@ -42,7 +42,7 @@ public class GroupListCommand extends AbstractRatisCommand {
    * @param context command context
    */
   public GroupListCommand(Context context) {
-    super(context);
+    super(context.getPrintStream());
   }
 
   @Override

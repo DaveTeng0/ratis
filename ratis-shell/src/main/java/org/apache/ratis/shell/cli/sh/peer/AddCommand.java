@@ -49,7 +49,7 @@ public class AddCommand extends AbstractRatisCommand {
    * @param context command context
    */
   public AddCommand(Context context) {
-    super(context);
+    super(context.getPrintStream());
   }
 
   @Override

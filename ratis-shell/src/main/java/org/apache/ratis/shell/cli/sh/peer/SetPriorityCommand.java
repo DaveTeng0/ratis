@@ -42,7 +42,7 @@ public class SetPriorityCommand extends AbstractRatisCommand {
    * @param context command context
    */
   public SetPriorityCommand(Context context) {
-    super(context);
+    super(context.getPrintStream());
   }
 
   @Override

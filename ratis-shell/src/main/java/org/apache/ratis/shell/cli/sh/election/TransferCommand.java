@@ -46,7 +46,7 @@ public class TransferCommand extends AbstractRatisCommand {
    * @param context command context
    */
   public TransferCommand(Context context) {
-    super(context);
+    super(context.getPrintStream());
   }
 
   @Override
