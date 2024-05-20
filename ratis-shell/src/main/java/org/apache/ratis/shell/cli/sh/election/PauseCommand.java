@@ -40,7 +40,7 @@ public class PauseCommand extends AbstractRatisCommand {
    * @param context command context
    */
   public PauseCommand(Context context) {
-    super(context);
+    super(context.getPrintStream());
   }
 
   @Override

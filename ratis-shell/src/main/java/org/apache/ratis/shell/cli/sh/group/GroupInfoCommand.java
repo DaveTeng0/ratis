@@ -22,6 +22,7 @@ import org.apache.commons.cli.Options;
 import org.apache.ratis.proto.RaftProtos;
 import org.apache.ratis.protocol.GroupInfoReply;
 import org.apache.ratis.shell.cli.sh.command.AbstractRatisCommand;
+import org.apache.ratis.shell.cli.sh.command.BaseCommand;
 import org.apache.ratis.shell.cli.sh.command.Context;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ import java.io.IOException;
 /**
  * Command for querying ratis group information.
  */
-public class GroupInfoCommand extends AbstractRatisCommand {
+public class GroupInfoCommand extends BaseCommand {
   /**
    * @param context command context
    */

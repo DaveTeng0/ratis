@@ -58,7 +58,7 @@ public class RaftMetaConfCommand extends AbstractCommand {
    * @param context command context
    */
   public RaftMetaConfCommand(Context context) {
-    super(context);
+    super(context.getPrintStream());
   }
 
   @Override
